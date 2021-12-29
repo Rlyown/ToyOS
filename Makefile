@@ -1,4 +1,4 @@
-CROSS = x86_64-linux-gnu-
+CROSS =
 CC = $(addprefix $(CROSS),gcc)
 AS = nasm
 LD = $(addprefix $(CROSS),ld)
@@ -26,7 +26,7 @@ all: bootimg
 bootimg: kernel
 	/bin/bash ./scripts/mkfloppy.sh load $(FLOPPY_IMG) $(TOYOS_BIN) grub.cfg
 	
-# 创建启动磁盘，大小为1G，扇区大小为512B
+# 创建启动磁盘，大小=count * bs，扇区大小=512B
 floppy: $(FLOPPY_IMG)
 $(FLOPPY_IMG): 
 	dd if=/dev/zero of=$@ bs=512 count=65536
