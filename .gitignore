@@ -54,3 +54,5 @@ dkms.conf
 # Project Info
 .idea
 .clion.source.upload.marker
+third_party/
+compile_commands.json

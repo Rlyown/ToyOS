@@ -15,26 +15,25 @@ INC = -I ./ -I include/
 TOYOS_OBJS :=
 TOYOS_OBJS += boot.o main.o vgastr.o
 TOYOS_ELF = ToyOS.elf
-TOYOS_BIN = ToyOS.bin
+TOYOS_BIN = toyos
 FLOPPY_IMG = disk.img
 
 
 .PHONY: all clean check run
-all: bootimg
+all: help
+
+# 创建启动磁盘，大小=count * bs，扇区大小=512B
+floppy: $(FLOPPY_IMG)
+$(FLOPPY_IMG): 
+	/bin/bash ./scripts/mkfloppy.sh create $@
 
 # 制作启动镜像
 bootimg: kernel
 	/bin/bash ./scripts/mkfloppy.sh load $(FLOPPY_IMG) $(TOYOS_BIN) grub.cfg
-	
-# 创建启动磁盘，大小=count * bs，扇区大小=512B
-floppy: $(FLOPPY_IMG)
-$(FLOPPY_IMG): 
-	dd if=/dev/zero of=$@ bs=512 count=65536
-	/bin/bash ./scripts/mkfloppy.sh create $@
 
 clean:
-	rm *.o *.map
-	rm $(TOYOS_ELF) $(TOYOS_BIN) 
+	rm -f *.o *.map
+	rm -f $(TOYOS_ELF) $(TOYOS_BIN) 
 
 run:
 	qemu-system-i386 -m 1024 -drive format=raw,file=$(FLOPPY_IMG)
@@ -51,3 +50,11 @@ $(TOYOS_ELF): $(TOYOS_OBJS)
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(INC) -c $< -o $@
+
+help:
+	@echo "Usage: make <target>"
+	@echo "\tfloppy: Create raw disk image"
+	@echo "\tbootimg: Load kernel and grub.cfg to disk image"
+	@echo "\trun: Run kernel by qemu"
+	@echo "\tkernel: Build kernel only"
+	@echo "\tclean: Clean resulting file"
